@@ -10,9 +10,10 @@ import argparse
 def main(N, conn):
     conn.root.exposed_setup(N)
 
-    print("Commands: exit, list, clock")
+    print("Commands: list, clock, time_cs <t>, time_p <t>, exit")
     running = True
     while running:
+        print ("Input the command:", end=' ')
         inp = input().lower()
         cmd = inp.split(" ")
 
@@ -29,9 +30,21 @@ def main(N, conn):
         elif command == "list":
             conn.root.list()
 
+        # handle time_cs
+        elif command == "time_cs":
+            conn.root.time_cs(int(cmd[1]))
+
+        # handle time_p
+        elif command == "time_p":
+            conn.root.time_p(int(cmd[1]))
+
         # handle clock
         elif command == "clock":
             conn.root.clock()
+
+        # handle list
+        elif command == "show_time_p":
+            conn.root.show_time_p()
 
         # handle unsupported command
         else:

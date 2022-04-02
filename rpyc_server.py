@@ -6,6 +6,7 @@ import time
 from operator import itemgetter
 from rpyc.utils.server import ThreadedServer
 import datetime
+import random
 
 
 class CriticalSection:
@@ -59,12 +60,50 @@ class MonitorService(rpyc.Service):
             p.start()
 
     def exposed_list(self):
+        print(f'Received command from client: list')
+
         for p in processes:
             print(p.id, p.status)
 
     def exposed_clock(self):
+        print(f'Received command from client: clock')
         for p in processes:
             print(p.id, p.time)
+
+    def exposed_time_cs(self, t):
+        '''
+        sets the time to the critical section
+        assigns a time-out for possessing the critical section
+        the time-out is selected randomly from the interval (10, t)
+        By default: each process can have the critical section for 10 second
+        E.g.: $ time-cs 20, sets the interval for time-out as [10, 20] – in seconds.
+        '''
+        print(f'Received command from client: time_cs {t}')
+        pass
+
+    def exposed_time_p(self, t):
+        '''
+        sets the time-out interval for all processes [5, t],
+        meaning that each process takes its timeout randomly from the interval.
+        This time is used by each process to move between states.
+        E.g.: a process changes from DO-NOT-WANT to WANTED after a time-out,
+        e.g., after 5 seconds.
+        Notice here that the process cannot go back to DO-NOT-WANT, and can only proceed to HELD once is authorized by
+all the nodes to do so. After the process has going through the steps of accessing and releasing the CS,
+then it goes back to the DO-NOT-WANT, where the time-out can be once again trigger to request access
+to the CS.
+
+        '''
+        print(f'Received command from client: time_p {t}')
+        for p in processes:
+            time_p = random.randint(5, t)
+            p.time_out = time_p
+
+
+    def exposed_show_time_p(self):
+        print(f'Received command from client: show_time_p')
+        for p in processes:
+            print(f'P{p.id} time_out: {p.time_out}')
 
 
 class Process:
