@@ -1,16 +1,11 @@
 import rpyc
-import sys
-import datetime
-import _thread
-import time
-from operator import itemgetter
 import argparse
 
 
 def main(N, conn):
     conn.root.exposed_setup(N)
 
-    print("Commands: exit, list, clock")
+    print("Commands: exit, list, clock, time-cs <sec>, time-p <sec>")
     running = True
     while running:
         inp = input().lower()
@@ -18,22 +13,18 @@ def main(N, conn):
 
         command = cmd[0]
 
-        if len(cmd) > 3:
+        if len(cmd) > 2:
             print("Too many arguments")
-
-        # handle exit
         elif command == "exit":
             running = False
-
-        # handle list
         elif command == "list":
             conn.root.list()
-
-        # handle clock
         elif command == "clock":
             conn.root.clock()
-
-        # handle unsupported command
+        elif command == "time-cs":
+            conn.root.time_cs(float(cmd[1]))
+        elif command == "time-p":
+            conn.root.time_p(float(cmd[1]))
         else:
             print("Unsupported command:", inp)
 
